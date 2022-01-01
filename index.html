@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>METER READINGS GENERATOR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow&family=Barlow+Condensed&family=Roboto:wght@300&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://unpkg.com/vue@next"></script>
+</head>
+
+<body >
+    <div id="app">
+    <header>
+        <div class="logo">
+            <img src="./assets/Logo.svg" />
+        </div>
+        <h3> {{title}} </h3>
+        <div class="social">
+            <a href="https://github.com/luistrigo/meter-readings-generator">
+                <img src="./assets/GitHub.svg" />
+            </a>
+        </div>
+    </header>
+    <main>
+        <div class="form" v-if="errorMessages.length == 0">
+            <section>
+                <div class="info">
+                    <h5>Total Customers in database:</h5> <span>{{numberLocale(totalCustomersDB)}}</span>
+                </div>
+                <div class="info">
+                    <h5> Meter Readings in database:</h5> <span>{{numberLocale(totalMeterReadingsDB)}}</span>
+                </div>
+            </section>
+            <section v-if="totalCustomersDB == 0">
+                <div class="form-group">
+                    <label>Customers to create:</label>
+                    <input type="text" v-model="customers">
+                </div>
+                <div class="form-group">
+                    <label>Cities:</label>
+                    <input type="text" v-model="totalCities">
+                </div>
+                <div class="buttons">
+                    <button class="btn w-100" :disabled="creatingCustomeres":class="[creatingCustomeres ? 'btn-disabled' : 'btn-primary']" @click="createCustomers">CREATE CUSTOMERS</button>
+                </div>
+            </section>
+
+            <section v-if="totalCustomersDB > 0 && totalMeterReadingsDB == 0">
+                <div class="form-group">
+                    <label>Years:</label>
+                    <input type="text" v-model="years"></input>
+                </div>
+                <div class="form-group">
+                    <label>Meter Readings type:</label>
+                    <label><input type="radio" v-model="meterReadingType" value="1" /> Monthly</label>
+                    <label><input type="radio" v-model="meterReadingType" value="0" /> Daily</label>
+                </div>
+                <div class="info">
+                    <h5>Total Meter Readings:</h5>
+                    <span>{{numberLocale(meterReadingsCreate)}}</span>
+                </div>
+                <div class="buttons">
+                    <button v-if="!flag_start && !flag_stop" class="btn btn-primary w-100"
+                        @click="startMeterReadings">START</button>
+                    <button v-if="flag_start && !flag_stop" class="btn btn-warning w-100"
+                        @click="stopMeterReadings">STOP</button>
+                    <button v-if="flag_stop" class="btn btn-primary w-100"
+                        @click="continueMeterReadings">CONTINUE</button>
+                </div>
+            </section><!-- create-meterReadings -->
+
+            <section v-if="totalCustomersDB > 0">
+                <div class="buttons">
+                    <button class="btn  w-100" :class="[show_delete ? 'btn-disabled' : 'btn-warning']"
+                        @click="showDelete">
+                        DELETE ALL CUSTOMERS AND METER READINGS
+                    </button>
+                    <div class="modal-confirmation" v-if="show_delete">
+                        <label>Are you sure?</label>
+                        <div class="confirm">
+                            <button class="btn btn-warning w-50" @click="deleteData">
+                                DELETE
+                            </button>
+                            <button class="btn btn-primary w-50" @click="hideDelete">
+                                CANCEL
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div> <!-- form -->
+        <div>
+            <section class="message" v-if="messageAction !='' || totalPopulation > 0 || totaltime > 0">
+                <div>
+                   <h3>{{messageAction}}</h3>
+                   <ul v-if="errorMessages.length > 0">
+                    <li v-for="(message,index) in errorMessages" :key="index" v-html="message">
+                        {{message}}
+                    </li>
+                </ul>
+                </div>
+                <div v-if="totalPopulation > 0" class="row">
+                    <ul>
+                        <li><label>Population:</label> {{numberLocale(totalPopulation)}}</li>
+                        <li><label>Ratio:</label> {{ratio}}</li>
+                        <li>
+                            <table class="w-100">
+                                <thead>
+                                    <tr>
+                                        <th>City</th>
+                                        <th class="text-right">Population</th>
+                                        <th class="text-right">Customers</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="city in cities" :key="city.city">
+                                        <td>{{city.city}}</td>
+                                        <td class="text-right">{{numberLocale(city.population)}}</td>
+                                        <td class="text-right">{{numberLocale(city.numcustomers)}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </li>
+                    </ul>
+                </div>
+                <div v-if="totaltime > 0" class="row">
+                    <div class="info">
+                        <h5>Total time <small>(ms)</small>: </h5><span>{{ numberLocale(totaltime) }}</span>
+                    </div>
+                    <div class="info">
+                        <h5>Total Meter Readings: </h5><span>{{ numberLocale(totalMeterReadings) }}</span>
+                    </div>
+                    <ul>
+                        <li v-for="(message,index) in messages" :key="index">
+                            {{message}}
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </main>
+</div><!-- app -->
+</body>
+<script src="meterReadings.js"></script>
+</html>
